@@ -1,36 +1,123 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🧠 Iris Image Analysis for Early Detection of Systemic Organ Diseases
 
-## Getting Started
 
-First, run the development server:
+🔗 **GitHub Repository:**  
+👉 https://github.com/oshanLahiru0307/research_project/tree/dev
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📌 Project Overview
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+This research project presents an **AI-powered Iris Image Analysis System** designed for the **early detection of systemic organ diseases**, with a strong focus on **real-time eye image detection** for healthcare applications.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The system analyzes **iris and eye-region images** to identify visual indicators associated with:
 
-## Learn More
+- 🟤 Liver disorders  
+- 🟠 Digestive tract disorders  
+- 🔵 Spinal cord–related conditions  
 
-To learn more about Next.js, take a look at the following resources:
+By leveraging **computer vision and machine learning techniques**, the platform provides a **non-invasive, fast, and intelligent decision-support tool** for healthcare professionals.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🎯 Key Objectives
 
-## Deploy on Vercel
+- Enable **early screening** of systemic diseases using eye images  
+- Support **healthcare professionals** with visual, interpretable results  
+- Provide a **web-based, real-time diagnostic assistant**  
+- Reduce dependency on invasive and time-consuming preliminary tests  
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## ⚙️ System Features
+
+### 👁️ Real-Time Eye Image Detection
+- Eye images are captured via a camera or uploaded through the web interface
+- Images are analyzed instantly using trained AI models
+- Designed for both **clinical environments and field-based screenings**
+
+---
+
+### 🧪 Disease Risk Classification
+The system classifies disease risk using a **clear, color-coded output**:
+
+| Status | Meaning |
+|------|--------|
+| 🟢 **Green** | Healthy eye / No significant risk detected |
+| 🔴 **Red** | Potential disease indication detected |
+
+This visual approach improves interpretability and speeds up clinical decision-making.
+
+---
+
+### 🩺 Decision Support for Healthcare Professionals
+- Provides **visual feedback** to assist doctors and medical staff
+- Supports decisions related to:
+  - Further medical examinations  
+  - Specialist referrals  
+  - Follow-up monitoring  
+- Acts as a **screening and support tool**, not a replacement for clinical diagnosis
+
+---
+
+### 🌐 Web-Based Intelligent System
+- Fully **web-based platform**
+- Integrates:
+  - Computer Vision  
+  - Machine Learning / Deep Learning  
+  - Real-time Image Processing  
+- Suitable for:
+  - Hospitals  
+  - Clinics  
+  - Mobile medical camps  
+  - Research environments  
+
+---
+
+## 🧠 Technologies & Methods
+
+- **Machine Learning / Deep Learning**
+  - CNN-based feature extraction
+  - Image classification models
+- **Computer Vision**
+  - Eye and iris region processing
+- **Web Technologies**
+  - Frontend: Web-based UI for image capture and analysis
+  - Backend: AI model integration and inference
+- **Real-Time Processing**
+  - Instant analysis and visual feedback
+
+---
+
+## 🖼️ System Architecture (Optional)
+
+![System Architecture](./assests/Untitled%20Diagram%20(1).jpg)
+
+---
+
+## 📊 Use Cases
+
+- Early screening for systemic diseases  
+- Support tool for doctors and medical staff  
+- Non-invasive preliminary health assessment  
+- Research and academic experimentation  
+
+---
+
+
+## 📚 Research & Academic Context
+
+This project is developed as part of an **AI-driven healthcare research initiative**, exploring the feasibility of **iris-based image analysis** for identifying systemic organ disease indicators.
+
+---
+
+## 🤝 Contributions & Collaboration
+
+---
+
+| Name | IT Number | Contribution |
+|-----|-----|-----|
+| **Yapa M.A.A.C** | IT22077424 | Early Detection and Management of Spinal cord issues |
+| **Himasha M M K** | IT22330796 | Iris Image Validation with Healthy/Diseased Classification  |
+| **Oshan Lahiru P L G** | IT22330796 | Early Detection and Management of Digestive Disorders  |
+| **Chathuranga K H D** | IT21168772 | Early Detection and Identification of Liver Diseases Using iris Image Analysis  |
