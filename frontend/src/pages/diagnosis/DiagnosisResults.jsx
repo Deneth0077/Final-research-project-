@@ -14,6 +14,10 @@ import PatientReportPDF from '../../components/PatientReportPDF'
 import PDFPreviewModal from '../../components/PDFPreviewModal'
 import { useDispatch } from 'react-redux'
 import { createDiagnosisThunk } from '../../state/diagnosesSlice'
+import { getGradCamLiver } from '../../api/liverApi'
+import { getGradCamDigestive } from '../../api/digestiveApi'
+import { getGradCamIris } from '../../api/irisApi'
+import GenericExpertAnalysisTab from './tabs/GenericExpertAnalysisTab'
 
 function DiagnosisResults() {
   const dispatch = useDispatch()
@@ -30,6 +34,10 @@ function DiagnosisResults() {
   const [showPDFReport, setShowPDFReport] = useState(false)
   const [showPDFPreview, setShowPDFPreview] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [gradCamUrl, setGradCamUrl] = useState(null)
+  const [irisGradCamUrl, setIrisGradCamUrl] = useState(null)
+  const [isGradCamLoading, setIsGradCamLoading] = useState(false)
+  const [isIrisGradCamLoading, setIsIrisGradCamLoading] = useState(false)
   const pdfReportRef = useRef(null)
 
   // Get image, aiResult, patient, eye, and original file from navigation state
@@ -114,7 +122,7 @@ function DiagnosisResults() {
         confidence: confPercent,
         recommendation,
         isHealthy: pred === 'normal',
-        validation_report: null,
+        validation_report: aiResult.validation_report,
         probabilities: aiResult.probabilities,
       }
     }
@@ -246,6 +254,45 @@ function DiagnosisResults() {
       }, 0)
     }
   }, [activeTab, confidenceValue])
+  
+  // Fetch Grad-CAM image
+  useEffect(() => {
+    const fetchGradCam = async () => {
+      if (!imageFile) return
+      
+      setIsGradCamLoading(true)
+      try {
+        let url = null
+        if (disease === 'liver') {
+          url = await getGradCamLiver(imageFile)
+        } else if (disease === 'digestive') {
+          url = await getGradCamDigestive(imageFile)
+        }
+        setGradCamUrl(url)
+      } catch (error) {
+        console.error('Error fetching Grad-CAM:', error)
+      } finally {
+        setIsGradCamLoading(false)
+      }
+    }
+
+    const fetchIrisGradCam = async () => {
+      if (!imageFile) return
+      
+      setIsIrisGradCamLoading(true)
+      try {
+        const url = await getGradCamIris(imageFile)
+        setIrisGradCamUrl(url)
+      } catch (error) {
+        console.error('Error fetching Iris Grad-CAM:', error)
+      } finally {
+        setIsIrisGradCamLoading(false)
+      }
+    }
+
+    fetchGradCam()
+    fetchIrisGradCam()
+  }, [disease, imageFile])
 
   const handleNewScan = () => {
     navigate(`/diagnose/${disease}/upload`, { state: { patient } })
@@ -444,6 +491,14 @@ function DiagnosisResults() {
   if (disease === 'liver') {
     tabs.push({ id: 'liver_expert', name: 'Expert Analysis', icon: '🔍' })
   }
+  
+  if (disease === 'digestive') {
+    tabs.push({ id: 'digestive_expert', name: 'Expert Analysis', icon: '🔍' })
+  }
+
+  if (disease === 'spinal' || disease === 'health-check') {
+    tabs.push({ id: 'generic_expert', name: 'Expert Analysis', icon: '🔍' })
+  }
 
 
   return (
@@ -517,11 +572,32 @@ function DiagnosisResults() {
         {activeTab === 'past' && <PastDiagnosesTab />}
 
         {activeTab === 'liver_expert' && disease === 'liver' && (
-          <LiverExpertAnalysisTab aiAssessment={aiAssessment} />
+          <LiverExpertAnalysisTab 
+            aiAssessment={aiAssessment} 
+            gradCamUrl={gradCamUrl}
+            irisGradCamUrl={irisGradCamUrl}
+            isGradCamLoading={isGradCamLoading}
+            isIrisGradCamLoading={isIrisGradCamLoading}
+          />
         )}
 
         {activeTab === 'digestive_expert' && disease === 'digestive' && (
-          <DigestiveExpertAnalysisTab aiAssessment={aiAssessment} />
+          <DigestiveExpertAnalysisTab 
+            aiAssessment={aiAssessment} 
+            gradCamUrl={gradCamUrl}
+            irisGradCamUrl={irisGradCamUrl}
+            isGradCamLoading={isGradCamLoading}
+            isIrisGradCamLoading={isIrisGradCamLoading}
+          />
+        )}
+
+        {activeTab === 'generic_expert' && (disease === 'spinal' || disease === 'health-check') && (
+          <GenericExpertAnalysisTab 
+            aiAssessment={aiAssessment} 
+            irisGradCamUrl={irisGradCamUrl}
+            isIrisGradCamLoading={isIrisGradCamLoading}
+            disease={disease}
+          />
         )}
       </div>
 

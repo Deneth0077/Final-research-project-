@@ -15,3 +15,16 @@ export async function predictLiver(imageFile) {
 
   return data
 }
+
+export async function getGradCamLiver(imageFile, layerName = 'top_conv') {
+  const formData = new FormData()
+  formData.append('image', imageFile)
+  formData.append('layer_name', layerName)
+
+  const response = await ML_API.post('/liver/grad-cam', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    responseType: 'blob'
+  })
+
+  return URL.createObjectURL(response.data)
+}

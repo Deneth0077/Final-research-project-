@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { deleteDiagnosisThunk, fetchDiagnosesThunk } from '../../../state/diagnosesSlice'
 import ConfirmationModal from '../../../components/ConfirmationModal'
@@ -89,8 +89,8 @@ function PastDiagnosesTab() {
                     ? diagnosis.recommendedTests
                     : []
                   return (
-                  <>
-                    <tr key={diagnosis._id} className="hover:bg-gray-50 transition-colors">
+                    <Fragment key={diagnosis._id}>
+                      <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-3 whitespace-nowrap">
                         <div className="w-16 h-16 rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
                           <img
@@ -216,7 +216,7 @@ function PastDiagnosesTab() {
                         </td>
                       </tr>
                     )}
-                  </>
+                    </Fragment>
                 )})}
               </tbody>
             </table>

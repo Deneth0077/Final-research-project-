@@ -11,8 +11,9 @@ import {
     Button
 } from '@mui/material';
 import LiverRiskPredictor from '../../../components/LiverRiskPredictor';
+import GradCamSection from '../../../components/GradCamSection';
 
-function LiverExpertAnalysisTab({ aiAssessment }) {
+function LiverExpertAnalysisTab({ aiAssessment, gradCamUrl, irisGradCamUrl, isGradCamLoading, isIrisGradCamLoading }) {
     console.log('LiverExpertAnalysisTab Received aiAssessment:', aiAssessment);
     
     if (!aiAssessment || !aiAssessment.validation_report) {
@@ -208,6 +209,19 @@ function LiverExpertAnalysisTab({ aiAssessment }) {
                     </div>
                 </div>
             </div>
+
+            <GradCamSection 
+                gradCamUrl={gradCamUrl} 
+                isLoading={isGradCamLoading} 
+                description="This visualization highlights the specific regions of the iris scan that the AI model prioritized during its liver diagnostic assessment."
+            />
+
+            <GradCamSection 
+                gradCamUrl={irisGradCamUrl} 
+                isLoading={isIrisGradCamLoading} 
+                title="Iris Validation Focus Map"
+                description="In addition to liver-specific markers, the system validates the overall structural integrity of the iris scan to ensure the capture quality is sufficient for clinical analysis."
+            />
 
             {/* Debug Section (Only shows if something is wrong) */}
             {(symptomsPoints.length === 0 || patternsPoints.length === 0) && (

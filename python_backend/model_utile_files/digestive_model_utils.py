@@ -22,8 +22,7 @@ def load_model():
 
         if not os.path.exists(digestive_config.MODEL_PATH):
             raise FileNotFoundError(f"Model not found at {digestive_config.MODEL_PATH}")
-        # Standard load
-        _model = tf.keras.models.load_model(digestive_config.MODEL_PATH, compile=False)
+        _model = tf.keras.models.load_model(digestive_config.MODEL_PATH)
     return _model
 
 
@@ -43,15 +42,10 @@ def _decode_and_resize(image_bytes: bytes) -> np.ndarray:
 def preprocess_image(image_bytes: bytes) -> np.ndarray:
     """
     Preprocess image for model input.
-    REVERTED: Raw pixel values (0-255) as requested.
+    Expects RGB, 256x256, float32 - matching training pipeline.
     """
     img = _decode_and_resize(image_bytes)
     img = np.array(img, dtype=np.float32)
-    # img = img / 255.0  # Removing normalization as it causes model to loop on 'normal'
-    
-    # Debug: Check if there's actual signal
-    print(f"DEBUG: Digestive Preprocess - Mean: {np.mean(img):.2f}, Max: {np.max(img):.2f}")
-    
     img = np.expand_dims(img, axis=0)
     return img
 
@@ -59,7 +53,6 @@ def preprocess_image(image_bytes: bytes) -> np.ndarray:
 def predict(image_array: np.ndarray, image_bytes: Optional[bytes] = None) -> dict:
     """
     Run prediction and return class, confidence, and probabilities.
-    Uses only the CNN model result — no Gemini API.
     """
     model = load_model()
     predictions = model.predict(image_array, verbose=0)
@@ -68,29 +61,40 @@ def predict(image_array: np.ndarray, image_bytes: Optional[bytes] = None) -> dic
     pred_class = digestive_config.CLASSES[pred_idx]
     confidence = float(probs[pred_idx])
 
-    # Standardize result format
-    status = "issue_detected" if pred_class == "digestive" else "no_issue"
-    
-    # Calculate confidence level
-    if confidence >= 0.85:
-        confidence_level = "High"
-    elif confidence >= 0.65:
-        confidence_level = "Medium"
-    else:
-        confidence_level = "Low"
-
-    result = {
+    return {
         "prediction": pred_class,
-        "confidence": round(confidence * 100, 2),  # Return as percentage 0-100
-        "confidence_level": confidence_level,
-        "status": status,
+        "confidence": round(confidence, 4),
         "probabilities": {
             cls: round(float(p), 4) for cls, p in zip(digestive_config.CLASSES, probs)
         },
     }
 
-    return result
+    # Generate Doctor Referral Validation Report if image_bytes are provided
+    if image_bytes:
+        from model_utile_files.doctor_validation_service import get_validation_service
+        validation_model = get_validation_service()
+        report_data = validation_model.generate_validation_report(
+            image_bytes=image_bytes,
+            local_score=confidence,
+            local_label=pred_class,
+            organ="Digestive"
+        )
+        # Refine the final UI confidence score based on Doctor Validation Model's visual assessment
+        if "refined_score" in report_data:
+            # Overwrite CNN confidence with refined "symptom-aware" confidence
+            # Respect 95% maximum for ethical reasons
+            refined = min(0.95, report_data["refined_score"])
+            result["confidence"] = round(refined * 100, 2)
+        else:
+            # Convert 0-1 confidence to 0-100 percentage for UI
+            result["confidence"] = round(confidence * 100, 2)
+            
+        result.update(report_data)
+    else:
+        # Convert 0-1 confidence to 0-100 percentage for UI if no validation report
+        result["confidence"] = round(confidence * 100, 2)
 
+    return result
 
 
 def compute_grad_cam(
@@ -107,17 +111,44 @@ def compute_grad_cam(
 
     model = load_model()
 
+    model_inputs = model.inputs
+    if not isinstance(model_inputs, (list, tuple)):
+        model_inputs = [model_inputs]
+
     grad_model = tf.keras.models.Model(
-        [model.inputs], [model.get_layer(layer_name).output, model.output]
+        inputs=model_inputs,
+        outputs=[model.get_layer(layer_name).output, model.output],
     )
 
     with tf.GradientTape() as tape:
-        conv_outputs, predictions = grad_model(image_array)
+        # For a single-input model, pass the tensor directly.
+        # For multi-input models, pass a list aligned with model.inputs.
+        model_call_inputs = (
+            image_array if len(model_inputs) == 1 else [image_array] * len(model_inputs)
+        )
+        conv_outputs, predictions = grad_model(model_call_inputs, training=False)
+        if isinstance(predictions, (list, tuple)):
+            if len(predictions) == 0:
+                raise ValueError("Model returned empty predictions list")
+            predictions = predictions[0]
         if class_index is None:
             class_index = int(tf.argmax(predictions[0]))
+        num_classes = predictions.shape[-1]
+        if num_classes is None:
+            num_classes = int(tf.shape(predictions)[-1].numpy())
+        else:
+            num_classes = int(num_classes)
+        if class_index < 0 or class_index >= num_classes:
+            raise ValueError(
+                f"class_index {class_index} is out of range for model output with {num_classes} classes"
+            )
         loss = predictions[:, class_index]
 
     grads = tape.gradient(loss, conv_outputs)
+    if grads is None:
+        raise ValueError(
+            f"Unable to compute gradients for layer '{layer_name}'. Ensure it is a valid convolutional layer connected to the model output."
+        )
     pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
 
     conv_outputs = conv_outputs[0]
@@ -132,7 +163,7 @@ def compute_grad_cam(
 
 
 def generate_grad_cam_image(
-    image_bytes: bytes, layer_name: str, class_index: Optional[int] = None
+    image_bytes: bytes, layer_name: str = 'conv2d_3', class_index: Optional[int] = None
 ) -> np.ndarray:
     """
     Generate a Grad-CAM overlay image for the given input bytes.
@@ -152,3 +183,4 @@ def generate_grad_cam_image(
 
     overlay = cv2.addWeighted(base_img, 0.6, heatmap_color, 0.4, 0)
     return overlay
+

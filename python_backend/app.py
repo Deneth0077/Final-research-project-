@@ -30,16 +30,33 @@ from model_utile_files.spinal_model_utils import (
     predict as predict_spinal,
     preprocess_image as preprocess_spinal_image,
 )
+from model_utile_files.iris_val_model_utils import (
+    predict_iris_validation,
+    preprocess_iris_image,
+    generate_grad_cam_iris_image as generate_grad_cam_iris,
+)
 from model_utile_files.liver_clinical_utils import predict_liver_risk
 
 app = Flask(__name__)
 CORS(app)
 app.config["MAX_CONTENT_LENGTH"] = digestive_config.MAX_CONTENT_LENGTH
 
+
+
 @app.route("/health", methods=["GET"])
 def health():
     """Health check endpoint."""
     return jsonify({"status": "ok", "message": "API is running"})
+
+def check_iris_validity(image_bytes):
+    """Check if the provided image is a valid iris."""
+    try:
+        img_array = preprocess_iris_image(image_bytes)
+        result = predict_iris_validation(img_array)
+        return result.get("is_valid", False), result
+    except Exception as e:
+        print(f"Iris validation error: {e}")
+        return False, {"error": str(e)}
 
 # --- Digestive Routes ---
 
@@ -59,6 +76,21 @@ def digestive_predict_endpoint():
         if len(image_bytes) == 0:
             return jsonify({"error": "Empty image"}), 400
 
+        # 1) Validate iris first
+        is_valid_iris, iris_result = check_iris_validity(image_bytes)
+        if not is_valid_iris:
+            return (
+                jsonify(
+                    {
+                        "error": "Iris validation failed.",
+                        "details": iris_result,
+                        "message": "Not a valid iris image. Please provide a clear iris image (not blurry and iris should be visible)."
+                    }
+                ),
+                400,
+            )
+
+        # 2) If valid iris, run digestive prediction
         img_array = preprocess_digestive_image(image_bytes)
         result = predict_digestive(img_array, image_bytes=image_bytes)
         return jsonify(result)
@@ -77,8 +109,8 @@ def digestive_grad_cam_endpoint():
             return jsonify({"error": 'No image provided.'}), 400
 
         layer_name = request.form.get("layer_name") or request.args.get("layer_name")
-        if not layer_name:
-            return jsonify({"error": "Missing required parameter 'layer_name'"}), 400
+        if not layer_name or layer_name == "top_conv":
+            layer_name = "conv2d_3"
 
         overlay = generate_grad_cam_digestive(image_bytes=image_bytes, layer_name=layer_name)
         bgr = cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR)
@@ -106,6 +138,20 @@ def liver_predict_endpoint():
         if len(image_bytes) == 0:
             return jsonify({"error": "Empty image"}), 400
 
+        # 1) Validate iris first
+        is_valid_iris, iris_result = check_iris_validity(image_bytes)
+        if not is_valid_iris:
+            return (
+                jsonify(
+                    {
+                        "error": "Iris validation failed.",
+                        "details": iris_result,
+                        "message": "Not a valid iris image. Please provide a clear iris image (not blurry and iris should be visible)."
+                    }
+                ),
+                400,
+            )
+
         img_array = preprocess_liver_image(image_bytes)
         result = predict_liver(img_array, image_bytes=image_bytes)
         return jsonify(result)
@@ -125,8 +171,8 @@ def liver_grad_cam_endpoint():
             return jsonify({"error": 'No image provided.'}), 400
 
         layer_name = request.form.get("layer_name") or request.args.get("layer_name")
-        if not layer_name:
-            return jsonify({"error": "Missing required parameter 'layer_name'"}), 400
+        if not layer_name or layer_name == "top_conv":
+            layer_name = "convnext_tiny_stage_3_block_2_identity"
 
         overlay = generate_grad_cam_liver(image_bytes=image_bytes, layer_name=layer_name)
         bgr = cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR)
@@ -168,6 +214,20 @@ def spinal_predict_endpoint():
         if len(image_bytes) == 0:
             return jsonify({"error": "Empty image"}), 400
 
+        # 1) Validate iris first
+        is_valid_iris, iris_result = check_iris_validity(image_bytes)
+        if not is_valid_iris:
+            return (
+                jsonify(
+                    {
+                        "error": "Iris validation failed.",
+                        "details": iris_result,
+                        "message": "Not a valid iris image. Please provide a clear iris image (not blurry and iris should be visible)."
+                    }
+                ),
+                400,
+            )
+
         img_array = preprocess_spinal_image(image_bytes)
         result = predict_spinal(img_array)
         return jsonify(result)
@@ -175,6 +235,29 @@ def spinal_predict_endpoint():
         return jsonify({"error": str(e)}), 500
 
 # --- Info Routes ---
+
+@app.route("/iris/grad-cam", methods=["POST"])
+def iris_grad_cam_endpoint():
+    """Generate Grad-CAM visualization for iris validation model."""
+    try:
+        if "image" in request.files:
+            file = request.files["image"]
+            image_bytes = file.read()
+        elif request.data:
+            image_bytes = request.data
+        else:
+            return jsonify({"error": 'No image provided.'}), 400
+
+        layer_name = request.form.get("layer_name") or request.args.get("layer_name")
+        if not layer_name or layer_name == "top_conv":
+            layer_name = "conv2d_1"
+
+        overlay = generate_grad_cam_iris(image_bytes=image_bytes, layer_name=layer_name)
+        bgr = cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR)
+        success, buffer = cv2.imencode(".png", bgr)
+        return send_file(io.BytesIO(buffer.tobytes()), mimetype="image/png")
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/liver/model-info", methods=["GET"])
 def liver_model_info():
@@ -207,7 +290,8 @@ if __name__ == "__main__":
     print("Starting Flask server... Models will be loaded on demand.")
     
     # Verify model files exist
-    for cfg in [digestive_config, liver_config]:
+    import config_files.iris_val_model_config as iris_val_config
+    for cfg in [digestive_config, liver_config, iris_val_config]:
         if os.path.exists(cfg.MODEL_PATH):
             print(f"Verified: {cfg.MODEL_PATH} exists.")
         else:

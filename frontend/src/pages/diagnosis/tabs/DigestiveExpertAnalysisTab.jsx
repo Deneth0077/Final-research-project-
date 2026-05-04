@@ -1,7 +1,8 @@
 
 import { Box, Card, CardContent, Typography, Divider, List, ListItem, ListItemIcon, ListItemText } from '@mui/material'
+import GradCamSection from '../../../components/GradCamSection';
 
-function DigestiveExpertAnalysisTab({ aiAssessment }) {
+function DigestiveExpertAnalysisTab({ aiAssessment, gradCamUrl, irisGradCamUrl, isGradCamLoading, isIrisGradCamLoading }) {
     if (!aiAssessment || !aiAssessment.validation_report) {
         return (
             <div className="flex flex-col items-center justify-center p-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
@@ -153,6 +154,19 @@ function DigestiveExpertAnalysisTab({ aiAssessment }) {
                     </div>
                 </div>
             </div>
+
+            <GradCamSection 
+                gradCamUrl={gradCamUrl} 
+                isLoading={isGradCamLoading} 
+                description="This visualization highlights the specific regions of the iris scan that the AI model prioritized during its digestive system assessment."
+            />
+
+            <GradCamSection 
+                gradCamUrl={irisGradCamUrl} 
+                isLoading={isIrisGradCamLoading} 
+                title="Iris Validation Focus Map"
+                description="In addition to digestive-specific markers, the system validates the overall structural integrity of the iris scan to ensure the capture quality is sufficient for clinical analysis."
+            />
 
             {/* Note Section */}
             <div className="bg-gray-100/50 p-6 rounded-2xl border border-gray-200 italic text-center">
