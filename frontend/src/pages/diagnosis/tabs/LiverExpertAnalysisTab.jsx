@@ -76,8 +76,6 @@ function LiverExpertAnalysisTab({ aiAssessment, gradCamUrl, irisGradCamUrl, isGr
     const patternsPoints = parseBulletPoints(patterns);
     const testsPoints = parseBulletPoints(tests);
 
-    console.log('Parsed Results:', { symptomsPoints, patternsPoints, testsPoints });
-
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -106,42 +104,7 @@ function LiverExpertAnalysisTab({ aiAssessment, gradCamUrl, irisGradCamUrl, isGr
                 </CardContent>
             </Card>
 
-            {/* Clinical Interpretation Section */}
-            <Card variant="outlined" className="rounded-xl border-gray-200 shadow-sm">
-                <Box className="bg-gray-50/50 px-4 py-2 border-b border-gray-200">
-                    <Typography variant="subtitle2" className="font-bold text-gray-700">
-                        Clinical Interpretation
-                    </Typography>
-                </Box>
-                <CardContent className="p-6 space-y-6">
-                    <Box className="bg-indigo-50/50 p-5 rounded-xl border border-indigo-100">
-                        <Typography variant="subtitle2" className="font-bold text-indigo-900 mb-3 uppercase tracking-wider text-xs">
-                            Expert Clinical Interpretation
-                        </Typography>
-                        <List className="p-0">
-                            {parseBulletPoints(findSection(['Clinical Interpretation'])).length > 0 ? (
-                                parseBulletPoints(findSection(['Clinical Interpretation'])).map((point, index) => (
-                                    <ListItem key={index} className="px-0 py-1 items-start">
-                                        <ListItemIcon className="min-w-[24px] mt-1">
-                                            <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
-                                        </ListItemIcon>
-                                        <ListItemText 
-                                            primary={point} 
-                                            primaryTypographyProps={{ className: "text-sm text-gray-800 leading-relaxed font-medium" }}
-                                        />
-                                    </ListItem>
-                                ))
-                            ) : (
-                                <Typography variant="body2" className="text-gray-700 leading-relaxed font-medium">
-                                    {findSection(['Clinical Interpretation']).replace(/Clinical Interpretation/i, '').replace(':', '').replace(/[*#]/g, '').trim() || 
-                                     `The AI model has classified this iris image as showing patterns associated with a ${aiAssessment.isHealthy ? 'normal' : 'liver-related'} condition. The Explainable AI (Grad-CAM) visualization highlights the regions that most influenced this prediction.`}
-                                </Typography>
-                            )}
-                        </List>
-                    </Box>
-                </CardContent>
-            </Card>
-
+            {/* Diagnostic Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Identified Symptoms & Signs */}
                 <div className="bg-amber-50 rounded-2xl border-2 border-amber-200 shadow-sm overflow-hidden flex flex-col">
@@ -246,17 +209,53 @@ function LiverExpertAnalysisTab({ aiAssessment, gradCamUrl, irisGradCamUrl, isGr
                 </div>
             </div>
 
-            <GradCamSection 
-                gradCamUrl={gradCamUrl} 
-                isLoading={isGradCamLoading} 
-                description="This visualization highlights the specific regions of the iris scan that the AI model prioritized during its liver diagnostic assessment."
-            />
+            {/* Clinical Interpretation Section - MOVED TO BOTTOM */}
+            <Card variant="outlined" className="rounded-xl border-gray-200 shadow-sm">
+                <Box className="bg-gray-50/50 px-4 py-2 border-b border-gray-200">
+                    <Typography variant="subtitle2" className="font-bold text-gray-700">
+                        Clinical Interpretation
+                    </Typography>
+                </Box>
+                <CardContent className="p-6 space-y-6">
+                    <Box className="bg-indigo-50/50 p-5 rounded-xl border border-indigo-100">
+                        <Typography variant="subtitle2" className="font-bold text-indigo-900 mb-3 uppercase tracking-wider text-xs">
+                            Expert Clinical Interpretation
+                        </Typography>
+                        <List className="p-0">
+                            {parseBulletPoints(findSection(['Clinical Interpretation'])).length > 0 ? (
+                                parseBulletPoints(findSection(['Clinical Interpretation'])).map((point, index) => (
+                                    <ListItem key={index} className="px-0 py-1 items-start">
+                                        <ListItemIcon className="min-w-[24px] mt-1">
+                                            <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
+                                        </ListItemIcon>
+                                        <ListItemText 
+                                            primary={point} 
+                                            primaryTypographyProps={{ className: "text-sm text-gray-800 leading-relaxed font-medium" }}
+                                        />
+                                    </ListItem>
+                                ))
+                            ) : (
+                                <Typography variant="body2" className="text-gray-700 leading-relaxed font-medium">
+                                    {findSection(['Clinical Interpretation']).replace(/Clinical Interpretation/i, '').replace(':', '').replace(/[*#]/g, '').trim() || 
+                                     `The AI model has classified this iris image as showing patterns associated with a ${aiAssessment.isHealthy ? 'normal' : 'liver-related'} condition. The Explainable AI (Grad-CAM) visualization highlights the regions that most influenced this prediction.`}
+                                </Typography>
+                            )}
+                        </List>
+                    </Box>
+                </CardContent>
+            </Card>
 
             <GradCamSection 
                 gradCamUrl={irisGradCamUrl} 
                 isLoading={isIrisGradCamLoading} 
                 title="Iris Validation Focus Map"
                 description="In addition to liver-specific markers, the system validates the overall structural integrity of the iris scan to ensure the capture quality is sufficient for clinical analysis."
+            />
+
+            <GradCamSection 
+                gradCamUrl={gradCamUrl} 
+                isLoading={isGradCamLoading} 
+                description="This visualization highlights the specific regions of the iris scan that the AI model prioritized during its liver diagnostic assessment."
             />
 
             {/* Debug Section (Only shows if something is wrong) */}
