@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
+import { useToast } from '../../context/ToastContext'
 import { predictDigestive } from '../../api/digestiveApi'
 import { predictLiver } from '../../api/liverApi'
 import { predictSpinal } from '../../api/spinalApi'
@@ -8,6 +9,7 @@ function ImageUpload() {
   const navigate = useNavigate()
   const location = useLocation()
   const { disease } = useParams()
+  const { showToast } = useToast()
   const patient = location.state?.patient || null
 
   const [dragActive, setDragActive] = useState(false)
@@ -60,7 +62,7 @@ function ImageUpload() {
       }
       reader.readAsDataURL(file)
     } else {
-      alert('Please upload a valid image file')
+      showToast('Please upload a valid image file', 'error')
     }
   }
 
@@ -90,7 +92,7 @@ function ImageUpload() {
       })
     } catch (err) {
       const msg = err?.response?.data?.error || err?.message || 'Analysis failed'
-      alert(msg)
+      showToast(msg, 'error')
     } finally {
       setIsAnalyzing(false)
     }

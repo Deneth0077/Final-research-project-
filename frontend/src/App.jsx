@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 import { AuthProviderWithStore } from './context/AuthProviderWithStore'
+import { ToastProvider } from './context/ToastContext'
 
 import Login from './pages/Login'
 import Layout from './components/Layout'
@@ -49,11 +50,13 @@ function AppRoutes() {
 
 function App() {
   return (
-    <AuthProviderWithStore>
-      <Router>
-        <AppRoutes />
-      </Router>
-    </AuthProviderWithStore>
+    <ToastProvider>
+      <AuthProviderWithStore>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </AuthProviderWithStore>
+    </ToastProvider>
   )
 }
 

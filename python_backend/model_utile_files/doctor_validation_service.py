@@ -42,7 +42,7 @@ class DoctorValidationService:
             self.is_configured = False
 
     def generate_validation_report(
-        self, image_bytes: bytes, local_score: float, local_label: str
+        self, image_bytes: bytes, local_score: float, local_label: str, organ: str = "Liver"
     ) -> dict:
         """
         Generate report. If API fails, provide a smart fallback report based on CNN results.
@@ -51,7 +51,7 @@ class DoctorValidationService:
         
         # Determine organ and results for fallback
         is_issue = "normal" not in local_label.lower()
-        organ = "Liver" # Focused on liver as requested
+        # use the provided organ
         
         # Attempt AI generation if configured
         if self.is_configured:
@@ -68,6 +68,10 @@ If this is an Iris scan, look for iridology markings in the {organ} zone.
 Headings:
 Identified Symptoms & Signs
 Detected Visual Patterns
+Clinical Interpretation
+• Analysis of reflexive markings in the target organ sector.
+• Correlation between visual signs and physiological stress.
+
 Recommended Next Steps
 
 Validation Severity Score: [X]%
@@ -106,32 +110,53 @@ Suggested Specialist: [Hepatologist]
 
         # --- FALLBACK / MOCK MODE (If AI fails or not configured) ---
         # This ensures the student always has data to show
-        print("DEBUG: Entering Mock Report Mode for Liver Expert Analysis.")
+        print(f"DEBUG: Entering Mock Report Mode for {organ} Expert Analysis.")
         
         if is_issue:
-            symptoms = [
-                "Iridology markings detected in the lower outer quadrant of the iris.",
-                "Potential pigment spots (psora) observed near the liver sector.",
-                "Localized cloudiness suggesting metabolic stress."
-            ]
-            patterns = [
-                "Lacunae formation visible in the hepatobiliary reflexive zone.",
-                "Discoloration patterns suggesting compromised detoxification.",
-                "Radial furrow intensity increased in corresponding organ map area."
-            ]
-            steps = [
-                "Liver Function Test (LFT) and Ultrasound scan recommended.",
-                "Consultation with a Hepatologist for specialized evaluation.",
-                "Review of clinical history for correlating symptoms."
-            ]
+            if organ.lower() == "liver":
+                symptoms = [
+                    "Iridology markings detected in the lower outer quadrant of the iris.",
+                    "Potential pigment spots (psora) observed near the liver sector.",
+                    "Localized cloudiness suggesting metabolic stress."
+                ]
+                patterns = [
+                    "Lacunae formation visible in the hepatobiliary reflexive zone.",
+                    "Discoloration patterns suggesting compromised detoxification.",
+                    "Radial furrow intensity increased in corresponding organ map area."
+                ]
+                steps = [
+                    "Liver Function Test (LFT) and Ultrasound scan recommended.",
+                    "Consultation with a Hepatologist for specialized evaluation.",
+                    "Review of clinical history for correlating symptoms."
+                ]
+                specialist = "Hepatologist"
+            else: # Digestive
+                symptoms = [
+                    "Radial furrows extending from the pupillary border into the stomach zone.",
+                    "Discoloration around the wreath (collarette) indicating intestinal toxicity.",
+                    "Darker pigmentation in the digestive reflexive area of the iris."
+                ]
+                patterns = [
+                    "Widened collarette indicating autonomic nerve imbalance.",
+                    "Crypts (lacunae) appearing in the gastrointestinal sector.",
+                    "Nutritional ring irregularities suggesting malabsorption."
+                ]
+                steps = [
+                    "Endoscopy or Colonoscopy recommended for internal visualization.",
+                    "Consultation with a Gastroenterologist for evaluation.",
+                    "Dietary audit to identify potential inflammatory triggers."
+                ]
+                specialist = "Gastroenterologist"
+
             risk = "High" if local_score > 0.8 else "Moderate"
             score = local_score * 100
         else:
-            symptoms = ["No significant pathological markings detected in the iris liver zone."]
+            symptoms = [f"No significant pathological markings detected in the iris {organ.lower()} zone."]
             patterns = ["Iris fibers show uniform structure in the corresponding reflexive sector."]
             steps = ["Maintain regular annual health screenings.", "No immediate specialized referral required."]
             risk = "Low"
             score = (1.0 - local_score) * 100 if local_score < 0.5 else 15.0
+            specialist = "Gastroenterologist" if organ.lower() == "digestive" else "Hepatologist"
 
         mock_content = f"""Identified Symptoms & Signs
 • {random.choice(symptoms)}
@@ -141,13 +166,16 @@ Detected Visual Patterns
 • {random.choice(patterns)}
 • {random.choice(patterns) if is_issue else "No indicators of acute inflammation."}
 
+Clinical Interpretation
+• Structural iris analysis shows { 'indicators of digestive reflexive stress' if organ.lower() == 'digestive' else 'signs of hepatic reflexive strain' if is_issue else 'clear and healthy reflexive zones' }.
+• { 'Radial furrow patterns suggest enteric nervous system involvement.' if organ.lower() == 'digestive' and is_issue else 'Visual density of iris fibers is within normal range.' if not is_issue else 'Markings correlate with metabolic stress in the organ sector.' }
+
 Recommended Next Steps
-• {random.choice(steps)}
-• {random.choice(steps)}
+{chr(10).join([f'• {s}' for s in random.sample(steps, 2)])}
 
 Validation Severity Score: {int(score)}%
 Risk Level: {risk}
-Suggested Specialist: Hepatologist"""
+Suggested Specialist: {specialist}"""
 
         return {
             "validation_report": mock_content,

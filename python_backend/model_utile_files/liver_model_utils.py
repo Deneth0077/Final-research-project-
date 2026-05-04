@@ -197,7 +197,7 @@ def compute_grad_cam_liver(
 
 
 def generate_grad_cam_liver_image(
-    image_bytes: bytes, layer_name: str, class_index: Optional[int] = None
+    image_bytes: bytes, layer_name: str = 'convnext_tiny_stage_3_block_2_identity', class_index: Optional[int] = None
 ) -> np.ndarray:
     """
     Generate a Grad-CAM overlay image for the liver model.
