@@ -32,15 +32,15 @@ export default function Hero() {
           </div>
           
           <h1 className="text-6xl md:text-8xl font-extrabold mb-4 tracking-tighter leading-tight drop-shadow-2xl">
-            Irisa <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-brand-cyan">AI</span>
+            Retinova <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-brand-cyan">AI</span>
           </h1>
           
           <p className="text-sm font-medium tracking-[0.3em] text-slate-400 uppercase mb-8 ml-1">
-            Early Detection · Lifelong Vision
+            Iris Intelligence · Systemic Health
           </p>
           
           <p className="text-lg text-slate-300 max-w-lg mb-10 leading-relaxed drop-shadow-lg">
-            An Integrated Deep Learning Framework for Early Detection of Vision Disorders using fundus image analysis and advanced computer vision.
+            An Integrated Deep Learning Framework for Early Detection of Systemic Disorders through non-invasive iris image analysis and hybrid AI architectures.
           </p>
           
           <div className="flex flex-wrap gap-4 pointer-events-auto">
