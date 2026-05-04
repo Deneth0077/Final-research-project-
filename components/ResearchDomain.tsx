@@ -30,7 +30,7 @@ const domains = [
         general: {
           title: "Iris Validation & General Health",
           text: "Modern AI has revived iridology through data-driven analysis using lightweight CNNs to filter noise and ensure high-quality inputs.",
-          metrics: "93% Testing Accuracy",
+          metrics: "87% Testing Accuracy",
           details: [
             "Methodology: Lightweight CNNs (EfficientNetV2B0 and DenseNet121) for quality validation.",
             "Research Gap: Existing systems lack Explainable AI (XAI) to highlight diagnostic regions."
@@ -39,7 +39,7 @@ const domains = [
         digestive: {
           title: "Digestive Tract Disorders",
           text: "Recent research utilizes CNNs and Vision Transformers (ViTs) to identify textural and pigmentation variations associated with gastrointestinal health.",
-          metrics: "93% Accuracy (Hybrid Models)",
+          metrics: "94% Accuracy (Hybrid Models)",
           details: [
             "AI Advancements: Using ConvNeXtTiny and EfficientNetV2B0 architectures.",
             "Challenges: Scarcity of clinically annotated datasets and lack of longitudinal monitoring."
@@ -532,8 +532,8 @@ export default function ResearchDomain() {
 
         <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: 'Iris Validation', value: '93%', color: 'blue' },
-            { label: 'Digestive Tract', value: '93%', color: 'emerald' },
+            { label: 'Iris Validation', value: '87%', color: 'blue' },
+            { label: 'Digestive Tract', value: '94%', color: 'emerald' },
             { label: 'Liver Health', value: '93%', color: 'rose' },
             { label: 'Spinal Cord', value: '95%', color: 'amber' },
           ].map((stat, i) => (
