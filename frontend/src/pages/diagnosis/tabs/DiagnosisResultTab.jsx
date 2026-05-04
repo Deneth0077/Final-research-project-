@@ -90,6 +90,26 @@ function DiagnosisResultTab({
               <p className="text-xs text-gray-700">{aiAssessment.recommendation}</p>
             </div>
 
+            {/* View Expert Analysis Button (for Digestive) */}
+            {disease === 'digestive' && (
+              <button
+                onClick={() => {
+                  // This is a bit tricky since we need to tell the parent to change the tab.
+                  // We can use a custom event or a prop-based callback.
+                  // Assuming the parent (DiagnosisResults) might provide a way, 
+                  // but for now let's just use window.dispatchEvent or similar if we can't find a prop.
+                  // Actually, let's just add the UI for now as requested.
+                  window.dispatchEvent(new CustomEvent('changeTab', { detail: 'digestive_expert' }));
+                }}
+                className="w-full mt-2 flex items-center justify-center space-x-2 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm text-sm font-bold"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <span>View Digestive Expert Analysis</span>
+              </button>
+            )}
+
             {/* Display exact probabilities from model */}
             {aiAssessment.probabilities && Object.keys(aiAssessment.probabilities).length > 0 && (
               <div className={`mt-3 rounded-lg p-3 border ${isHealthy ? 'bg-green-100 border-green-200' : 'bg-white border-pink-200'}`}>

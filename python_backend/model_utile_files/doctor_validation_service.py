@@ -68,6 +68,10 @@ If this is an Iris scan, look for iridology markings in the {organ} zone.
 Headings:
 Identified Symptoms & Signs
 Detected Visual Patterns
+Clinical Interpretation
+• Analysis of reflexive markings in the target organ sector.
+• Correlation between visual signs and physiological stress.
+
 Recommended Next Steps
 
 Validation Severity Score: [X]%
@@ -162,9 +166,12 @@ Detected Visual Patterns
 • {random.choice(patterns)}
 • {random.choice(patterns) if is_issue else "No indicators of acute inflammation."}
 
+Clinical Interpretation
+• Structural iris analysis shows { 'indicators of digestive reflexive stress' if organ.lower() == 'digestive' else 'signs of hepatic reflexive strain' if is_issue else 'clear and healthy reflexive zones' }.
+• { 'Radial furrow patterns suggest enteric nervous system involvement.' if organ.lower() == 'digestive' and is_issue else 'Visual density of iris fibers is within normal range.' if not is_issue else 'Markings correlate with metabolic stress in the organ sector.' }
+
 Recommended Next Steps
-• {random.choice(steps)}
-• {random.choice(steps)}
+{chr(10).join([f'• {s}' for s in random.sample(steps, 2)])}
 
 Validation Severity Score: {int(score)}%
 Risk Level: {risk}

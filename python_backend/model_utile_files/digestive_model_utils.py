@@ -61,7 +61,7 @@ def predict(image_array: np.ndarray, image_bytes: Optional[bytes] = None) -> dic
     pred_class = digestive_config.CLASSES[pred_idx]
     confidence = float(probs[pred_idx])
 
-    return {
+    result = {
         "prediction": pred_class,
         "confidence": round(confidence, 4),
         "probabilities": {
@@ -163,7 +163,7 @@ def compute_grad_cam(
 
 
 def generate_grad_cam_image(
-    image_bytes: bytes, layer_name: str = 'conv2d_3', class_index: Optional[int] = None
+    image_bytes: bytes, layer_name: str, class_index: Optional[int] = None
 ) -> np.ndarray:
     """
     Generate a Grad-CAM overlay image for the given input bytes.

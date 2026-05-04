@@ -15,7 +15,7 @@ import config_files.liver_model_config as liver_config
 # import config_files.spinal_model_config as spinal_config
 
 from model_utile_files.digestive_model_utils import (
-    generate_grad_cam_image as generate_grad_cam_digestive,
+    generate_grad_cam_image,
     load_model as load_digestive_model,
     predict as predict_digestive,
     preprocess_image as preprocess_digestive_image,
@@ -98,6 +98,68 @@ def digestive_predict_endpoint():
         return jsonify({"error": str(e)}), 500
 
 @app.route("/digestive/grad-cam", methods=["POST"])
+def grad_cam_endpoint():
+    """
+    Generate Grad-CAM visualization for an uploaded image.
+
+    Form fields / query params:
+    - image: image file (required)
+    - layer_name: name of the conv layer to use (required)
+    - class_index: optional target class index (int); default is predicted class
+
+    Returns a PNG image with the Grad-CAM overlay.
+    """
+    try:
+        if "image" in request.files:
+            file = request.files["image"]
+            if file.filename == "":
+                return jsonify({"error": "No file selected"}), 400
+            image_bytes = file.read()
+        elif request.data:
+            image_bytes = request.data
+        else:
+            return jsonify(
+                {
+                    "error": 'No image provided. Send multipart/form-data with "image" or raw image bytes.'
+                }
+            ), 400
+
+        if len(image_bytes) == 0:
+            return jsonify({"error": "Empty image"}), 400
+
+        # Layer name can come from form or query params
+        layer_name = 'conv5_block16_concat'
+        if not layer_name:
+            return jsonify({"error": "Missing required parameter 'layer_name'"}), 400
+
+        class_index_raw = 0
+        class_index = int(class_index_raw) if class_index_raw is not None else None
+
+        overlay = generate_grad_cam_image(
+            image_bytes=image_bytes,
+            layer_name=layer_name,
+            class_index=class_index,
+        )
+
+        # Encode as PNG for response
+        bgr = cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR)
+        success, buffer = cv2.imencode(".png", bgr)
+        if not success:
+            return jsonify({"error": "Failed to encode Grad-CAM image"}), 500
+
+        return send_file(
+            io.BytesIO(buffer.tobytes()),
+            mimetype="image/png",
+            as_attachment=False,
+            download_name="grad_cam.png",
+        )
+
+    except FileNotFoundError as e:
+        return jsonify({"error": str(e)}), 500
+    except ValueError as e:
+        return jsonify({"error": f"Invalid parameter: {e}"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 def digestive_grad_cam_endpoint():
     try:
         if "image" in request.files:

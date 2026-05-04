@@ -209,6 +209,16 @@ function DiagnosisResults() {
 
   // Animate confidence bar on mount
   useEffect(() => {
+    const handleTabChange = (event) => {
+      if (event.detail) {
+        setActiveTab(event.detail);
+      }
+    };
+    window.addEventListener('changeTab', handleTabChange);
+    return () => window.removeEventListener('changeTab', handleTabChange);
+  }, []);
+
+  useEffect(() => {
     if (activeTab === 'results' && !hasAnimatedRef.current) {
       // Cancel any existing animation
       if (animationRef.current) {
@@ -493,7 +503,7 @@ function DiagnosisResults() {
   }
   
   if (disease === 'digestive') {
-    tabs.push({ id: 'digestive_expert', name: 'Expert Analysis', icon: '🔍' })
+    tabs.push({ id: 'digestive_expert', name: 'Digestive Expert Analysis', icon: '🔍' })
   }
 
   if (disease === 'spinal' || disease === 'health-check') {
