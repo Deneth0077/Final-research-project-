@@ -5,12 +5,16 @@ import re
 import random
 from typing import Optional
 from PIL import Image
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv  # type: ignore
+except Exception:  # pragma: no cover
+    load_dotenv = None
 
 import google.generativeai as genai
 
 # Load environment variables from .env file
-load_dotenv()
+if load_dotenv is not None:
+    load_dotenv()
 
 logger = logging.getLogger(__name__)
 
