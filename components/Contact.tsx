@@ -109,7 +109,7 @@ export function Footer() {
 
         <div className="pt-8 border-t border-slate-900 text-center">
           <p className="text-slate-600 text-xs">
-            © 2025 Irisa AI. All rights reserved. — Early Detection, Lifelong Vision
+            © 2026 Irisa AI. All rights reserved. — Early Detection, Lifelong Vision
           </p>
         </div>
       </div>

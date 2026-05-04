@@ -6,20 +6,20 @@ import { FileText, Monitor, Download, ArrowDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const documents = [
-  { title: 'Topic Assessment', date: '2024/05/13', type: 'Group' },
-  { title: 'Project Proposal', date: '2024/08/23', type: 'Individual' },
-  { title: 'Research Paper', date: '2025/03/22', type: 'Group' },
-  { title: 'Final Report', date: '2025/05/11', type: 'Group + Individual' },
+  { title: 'Topic Assessment', date: '2025/05/13', type: 'Group', link: 'https://drive.google.com/file/d/1QXQts-WZ--o7ObBzBp-cLj_aw2XgkCzQ/view?usp=sharing' },
+  { title: 'Project Proposal', date: '2025/08/23', type: 'Individual', link: 'https://drive.google.com/drive/folders/1pQByd1PSJY8rJnGTvY1vSp9dUIM7AXCl?usp=sharing' },
+  { title: 'Research Paper', date: '2026/03/22', type: 'Group', link: 'https://drive.google.com/file/d/1eEzs7q7h-UKez74WrkERc7FQxnFpFYjM/view?usp=sharing' },
+  { title: 'Final Report', date: '2026/05/11', type: 'Group + Individual', link: 'https://drive.google.com/drive/folders/1udtSv4MOs9G58VD5OR4z63dPwen5l-ia?usp=sharing' },
 ];
 
 const presentations = [
-  { title: 'Project Proposal', date: '2024/08/08', type: 'Group' },
-  { title: 'Progress Presentation I', date: '2024/12/05', type: 'Group' },
-  { title: 'Progress Presentation II', date: '2025/03/20', type: 'Group' },
-  { title: 'Final Presentation', date: '2025/05/28', type: 'Group' },
+  { title: 'Project Proposal', date: '2025/08/08', type: 'Group', link: 'https://drive.google.com/drive/folders/1wUSyldEZ_rwy7GcZjsgeNgjwauTUkaUP?usp=sharing' },
+  { title: 'Progress Presentation I', date: '2025/12/05', type: 'Group', link: 'https://drive.google.com/drive/folders/1qv2z4MsjBHwQ_F5-m89o2cqNVP5G8dv9?usp=sharing' },
+  { title: 'Progress Presentation II', date: '2026/03/20', type: 'Group', link: 'https://drive.google.com/drive/folders/1Jjc0kMUdYfV1QX2XzUOvrLmSrn6AW50s?usp=sharing' },
+  { title: 'Final Presentation', date: '2026/05/28', type: 'Group', link: 'https://drive.google.com/drive/folders/1dI_t4mmnzpMha2ztRwNcW_oGG-uE0eCR?usp=sharing' },
 ];
 
-const DownloadCard = ({ title, date, type, icon: Icon }: any) => (
+const DownloadCard = ({ title, date, type, link, icon: Icon }: any) => (
   <motion.div
     whileHover={{ y: -10 }}
     className="glass-card p-6 rounded-2xl group flex flex-col h-full"
@@ -37,10 +37,15 @@ const DownloadCard = ({ title, date, type, icon: Icon }: any) => (
       <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">
         {type}
       </span>
-      <button className="px-4 py-2 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-brand-blue hover:bg-brand-blue/10 text-white flex items-center gap-2 transition-all duration-300">
+      <a 
+        href={link} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="px-4 py-2 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-brand-blue hover:bg-brand-blue/10 text-white flex items-center gap-2 transition-all duration-300"
+      >
         <ArrowDown className="w-4 h-4" />
         <span className="text-xs font-bold uppercase">Download</span>
-      </button>
+      </a>
     </div>
   </motion.div>
 );

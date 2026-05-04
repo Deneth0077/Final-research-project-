@@ -40,7 +40,7 @@ export default function Navbar() {
             <Shield className="text-white w-6 h-6" />
           </div>
           <div className="flex flex-col">
-            <span className="text-xl font-bold tracking-tight text-white leading-none">Retinova AI</span>
+            <span className="text-xl font-bold tracking-tight text-white leading-none">Irisa AI</span>
             <span className="text-[10px] text-brand-blue font-medium uppercase tracking-widest">Iris Intelligence</span>
           </div>
         </Link>

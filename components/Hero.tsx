@@ -32,7 +32,7 @@ export default function Hero() {
           </div>
           
           <h1 className="text-6xl md:text-8xl font-extrabold mb-4 tracking-tighter leading-tight drop-shadow-2xl">
-            Retinova <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-brand-cyan">AI</span>
+            Irisa <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-brand-cyan">AI</span>
           </h1>
           
           <p className="text-sm font-medium tracking-[0.3em] text-slate-400 uppercase mb-8 ml-1">

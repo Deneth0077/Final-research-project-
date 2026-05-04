@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 
 const milestones = [
   {
-    date: 'July 2024',
+    date: 'July 2025',
     title: 'Proposal Presentation',
     description: 'Oral presentation demonstrating project concept, objectives, and feasibility.',
     marks: '6%',
@@ -15,7 +15,7 @@ const milestones = [
     side: 'left'
   },
   {
-    date: 'August 2024',
+    date: 'August 2025',
     title: 'Proposal Report',
     description: 'Comprehensive written document detailing methodology, timeline, and expected outcomes.',
     marks: '6%',
@@ -23,7 +23,7 @@ const milestones = [
     side: 'right'
   },
   {
-    date: 'December 2024',
+    date: 'December 2025',
     title: 'Progress Presentation I',
     description: 'Reviews 50% completion status, revealing gaps or inconsistencies in design.',
     marks: '15%',
@@ -31,7 +31,7 @@ const milestones = [
     side: 'left'
   },
   {
-    date: 'March 2025',
+    date: 'March 2026',
     title: 'Research Paper',
     description: 'Describes contribution to existing knowledge with due recognition to prior work.',
     marks: '10%',
@@ -39,7 +39,7 @@ const milestones = [
     side: 'right'
   },
   {
-    date: 'May 2025',
+    date: 'May 2026',
     title: 'Final Presentation & Viva',
     description: 'Comprehensive final presentation followed by individual viva assessing each member.',
     marks: '20%',

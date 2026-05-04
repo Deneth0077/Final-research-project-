@@ -100,8 +100,8 @@ const domains = [
       ],
       impact: "This leads to delayed interventions, increased healthcare costs, and a reliance on reactive rather than proactive medicine for managing systemic health.",
       solution: {
-        title: "Our Solution: Retinova",
-        text: "Retinova is an innovative, non-invasive health screening platform that utilizes specialized deep learning architectures to address existing research gaps through:",
+        title: "Our Solution: Irisa",
+        text: "Irisa is an innovative, non-invasive health screening platform that utilizes specialized deep learning architectures to address existing research gaps through:",
         features: [
           { title: "Integrated Validation Layer", icon: ShieldCheck, text: "Ensuring input quality using EfficientNetV2B0 and DenseNet121 before processing." },
           { title: "Multi-Organ Diagnostic Framework", icon: Layout, text: "Unified system screening for Digestive, Liver, and Spinal issues within a single platform." },
@@ -123,7 +123,7 @@ const domains = [
       specific: [
         { id: "01", title: "Developing Specialized Diagnostic Modules", text: "Create and optimize tailored deep learning architectures—such as ConvNeXtTiny and MobileNetV2—to detect specific physiological markers." },
         { id: "02", title: "Implementing an Automated Validation Layer", text: "Develop a robust preprocessing module using lightweight CNNs to verify the quality and validity of iris images." },
-        { id: "03", title: "Integrating into a Unified Framework", text: "Combine individual diagnostic modules into a single, cohesive platform (Retinova) for simultaneous screening." },
+        { id: "03", title: "Integrating into a Unified Framework", text: "Combine individual diagnostic modules into a single, cohesive platform (Irisa) for simultaneous screening." },
         { id: "04", title: "Enhancing Transparency with XAI", text: "Integrate visualization techniques to highlight specific iris regions, providing clinicians with interpretable evidence." },
         { id: "05", title: "Validating Local Clinical Relevance", text: "Evaluate performance using datasets reflecting regional health challenges, such as the high prevalence of NAFLD in Sri Lanka." },
         { id: "06", title: "Optimizing for Scalability and Accessibility", text: "Focus on computational efficiency to enable deployment in resource-limited or rural environments." }
@@ -161,7 +161,7 @@ const domains = [
         },
         { 
           id: 4, 
-          title: "Integration & Deployment (Retinova)", 
+          title: "Integration & Deployment (Irisa)", 
           text: "Built a modular Microservices Architecture using Flask for model serving and a Node.js backend with a React/Tailwind frontend.",
           bullets: ["Cloud-ready deployment (AWS/Azure)", "Explainable AI (XAI) heatmap generation", "Scalable infrastructure for rural health centers"]
         },
