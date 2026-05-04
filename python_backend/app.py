@@ -160,6 +160,7 @@ def grad_cam_endpoint():
         return jsonify({"error": f"Invalid parameter: {e}"}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
 def digestive_grad_cam_endpoint():
     try:
         if "image" in request.files:

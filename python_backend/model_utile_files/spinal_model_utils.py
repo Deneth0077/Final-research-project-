@@ -27,9 +27,13 @@ def predict(image_input) -> dict:
     Takes image_bytes instead of array.
     """
     import google.generativeai as genai
-    from dotenv import load_dotenv
+    try:
+        from dotenv import load_dotenv  # type: ignore
+    except Exception:
+        load_dotenv = None
 
-    load_dotenv()
+    if load_dotenv is not None:
+        load_dotenv()
     
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:

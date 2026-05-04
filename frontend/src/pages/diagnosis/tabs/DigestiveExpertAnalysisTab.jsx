@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { 
     Box, 
     Card, 
@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 
 function DigestiveExpertAnalysisTab({ aiAssessment, gradCamUrl, isGradCamLoading }) {
-    
+
     if (!aiAssessment || !aiAssessment.validation_report) {
         return (
             <div className="flex flex-col items-center justify-center p-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
@@ -32,15 +32,22 @@ function DigestiveExpertAnalysisTab({ aiAssessment, gradCamUrl, isGradCamLoading
     }
 
     const reportText = aiAssessment.validation_report || '';
-    const sections = reportText.split(/\n\s*\n/);
+    const sections = useMemo(() => reportText.split(/\n\s*\n/), [reportText]);
 
     const findSection = (keywordsList) => {
-        return sections.find(s => 
+        return sections.find((s) =>
             keywordsList.some(k => s.toLowerCase().includes(k.toLowerCase()))
         ) || '';
-    }
+    };
 
-    const keywords = ['Identified Symptoms & Signs', 'Detected Visual Patterns', 'Clinical Interpretation', 'Recommended Next Steps', 'Risk Level', 'Suggested Specialist'];
+    const keywords = [
+        'Identified Symptoms & Signs',
+        'Detected Visual Patterns',
+        'Clinical Interpretation',
+        'Recommended Next Steps',
+        'Risk Level',
+        'Suggested Specialist',
+    ];
 
     const parseBulletPoints = (text) => {
         if (!text) return [];
@@ -49,12 +56,21 @@ function DigestiveExpertAnalysisTab({ aiAssessment, gradCamUrl, isGradCamLoading
             .filter(line => line.length > 5) 
             .filter(line => !keywords.some(k => line.toLowerCase().includes(k.toLowerCase()))) 
             .filter(line => !line.match(/^[A-Z\s&]{5,}$/));
-    }
+    };
 
-    const interpretation = findSection(['Clinical Interpretation'])
-    const patterns = findSection(['Detected Visual Patterns', 'Patterns'])
-    const symptoms = findSection(['Identified Symptoms & Signs', 'Symptoms'])
-    const tests = findSection(['Recommended Next Steps', 'Next Steps'])
+    const cleanHeadingText = (text, heading) =>
+        text
+            .replace(new RegExp(heading, 'i'), '')
+            .replace(':', '')
+            .replace(/[*#]/g, '')
+            .trim();
+
+    const interpretation = findSection(['Clinical Interpretation']);
+    const patterns = findSection(['Detected Visual Patterns', 'Patterns']);
+    const symptoms = findSection(['Identified Symptoms & Signs', 'Symptoms']);
+    const tests = findSection(['Recommended Next Steps', 'Next Steps']);
+    const risk = findSection(['Risk Level']);
+    const specialist = findSection(['Suggested Specialist', 'Specialist']);
 
     const interpretationPoints = parseBulletPoints(interpretation);
     const symptomsPoints = parseBulletPoints(symptoms);
@@ -62,11 +78,25 @@ function DigestiveExpertAnalysisTab({ aiAssessment, gradCamUrl, isGradCamLoading
     const testsPoints = parseBulletPoints(tests);
 
     const [showGradCam, setShowGradCam] = useState(true);
+    const confidenceValue =
+        Number.isFinite(aiAssessment.confidence) && aiAssessment.confidence <= 1
+            ? Math.round(aiAssessment.confidence * 100)
+            : Number.isFinite(aiAssessment.confidence)
+            ? Math.round(aiAssessment.confidence)
+            : 85;
+    const riskLabel = cleanHeadingText(risk, 'Risk Level') || (aiAssessment.isHealthy ? 'Low' : 'Moderate');
+    const specialistLabel = cleanHeadingText(specialist, 'Suggested Specialist') || 'Gastroenterologist';
+
+    const riskStyle = riskLabel.toLowerCase().includes('high')
+        ? 'bg-rose-600 text-white'
+        : riskLabel.toLowerCase().includes('moderate')
+        ? 'bg-amber-500 text-white'
+        : 'bg-emerald-600 text-white';
 
     return (
         <div className="h-full overflow-y-auto pr-2 space-y-6 pb-8">
             {/* Overview Card */}
-            <Card className="border-none shadow-md bg-gradient-to-br from-indigo-900 to-indigo-800 text-white overflow-hidden">
+            <Card className="border-none shadow-md bg-gradient-to-br from-indigo-900 via-indigo-800 to-blue-800 text-white overflow-hidden">
                 <CardContent className="p-6">
                     <div className="flex justify-between items-start">
                         <div>
@@ -74,52 +104,133 @@ function DigestiveExpertAnalysisTab({ aiAssessment, gradCamUrl, isGradCamLoading
                                 Specialized Visual Analysis
                             </Typography>
                             <Typography variant="h4" className="font-bold mt-1">
-                                Expert Pathology Review
+                                Digestive Expert Review
+                            </Typography>
+                            <Typography variant="body2" className="text-indigo-100 mt-2 max-w-2xl">
+                                Structured interpretation from AI-derived digestive markers with explainable visual evidence.
                             </Typography>
                         </div>
-                        <div className="bg-white/20 backdrop-blur-md p-3 rounded-2xl border border-white/30 text-center min-w-[100px]">
+                        <div className="bg-white/20 backdrop-blur-md p-3 rounded-2xl border border-white/30 text-center min-w-[130px]">
                             <Typography className="text-[10px] uppercase font-bold text-indigo-100">Confidence Score</Typography>
                             <Typography variant="h5" className="font-black text-white">
-                                {Number.isFinite(aiAssessment.confidence) ? Math.round(aiAssessment.confidence * 100) : '85'}%
+                                {confidenceValue}%
+                            </Typography>
+                            <Typography className="text-[10px] mt-1 text-indigo-100">Validated Insight</Typography>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Key Findings Grid */}
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                <Card variant="outlined" className="rounded-xl border-amber-200 shadow-sm overflow-hidden xl:col-span-2">
+                    <Box className="bg-amber-50 px-4 py-3 border-b border-amber-200">
+                        <Typography variant="subtitle2" className="font-bold text-amber-900">
+                            Identified Symptoms & Signs
+                        </Typography>
+                    </Box>
+                    <CardContent className="p-5">
+                        <List className="p-0">
+                            {symptomsPoints.length > 0 ? (
+                                symptomsPoints.map((point, index) => (
+                                    <ListItem key={index} className="px-0 py-1 items-start">
+                                        <ListItemIcon className="min-w-[26px] mt-1">
+                                            <div className="w-1.5 h-1.5 bg-amber-500 rounded-full" />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary={point}
+                                            primaryTypographyProps={{ className: "text-sm text-gray-800 leading-relaxed" }}
+                                        />
+                                    </ListItem>
+                                ))
+                            ) : (
+                                <Typography variant="body2" className="text-amber-900/70 italic">
+                                    No specific symptom markers were extracted from this report.
+                                </Typography>
+                            )}
+                        </List>
+                    </CardContent>
+                </Card>
+
+                <Card variant="outlined" className="rounded-xl border-slate-200 shadow-sm overflow-hidden">
+                    <Box className="bg-slate-50 px-4 py-3 border-b border-slate-200">
+                        <Typography variant="subtitle2" className="font-bold text-slate-900">
+                            Clinical Assessment
+                        </Typography>
+                    </Box>
+                    <CardContent className="p-5 space-y-4">
+                        <div className="rounded-xl border border-slate-200 bg-white p-3">
+                            <Typography className="text-[11px] uppercase font-bold tracking-wide text-slate-500">
+                                Risk Level
+                            </Typography>
+                            <span className={`mt-2 inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase ${riskStyle}`}>
+                                {riskLabel}
+                            </span>
+                        </div>
+                        <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-3">
+                            <Typography className="text-[11px] uppercase font-bold tracking-wide text-indigo-700">
+                                Suggested Specialist
+                            </Typography>
+                            <Typography className="text-sm font-semibold text-indigo-900 mt-2">
+                                {specialistLabel}
                             </Typography>
                         </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Pattern Cards */}
+            <Card variant="outlined" className="rounded-xl border-gray-200 shadow-sm overflow-hidden">
+                <Box className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                    <Typography variant="subtitle2" className="font-bold text-gray-800">
+                        Detected Visual Patterns
+                    </Typography>
+                </Box>
+                <CardContent className="p-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {patternsPoints.length > 0 ? (
+                            patternsPoints.map((item, i) => (
+                                <div key={i} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                                    <Typography className="text-sm text-gray-800 leading-relaxed">{item}</Typography>
+                                </div>
+                            ))
+                        ) : (
+                            <Typography variant="body2" className="text-gray-500 italic">
+                                No visual pattern findings were explicitly listed in this report.
+                            </Typography>
+                        )}
                     </div>
                 </CardContent>
             </Card>
 
             {/* Clinical Interpretation Section */}
             <Card variant="outlined" className="rounded-xl border-gray-200 shadow-sm overflow-hidden">
-                <Box className="bg-gray-50/50 px-4 py-2 border-b border-gray-200">
-                    <Typography variant="subtitle2" className="font-bold text-gray-700">
+                <Box className="bg-indigo-50/70 px-4 py-2 border-b border-indigo-100">
+                    <Typography variant="subtitle2" className="font-bold text-indigo-900">
                         Clinical Interpretation
                     </Typography>
                 </Box>
                 <CardContent className="p-6">
-                    <Box className="bg-indigo-50/50 p-6 rounded-xl border border-indigo-100">
-                        <Typography variant="subtitle2" className="font-bold text-indigo-900 mb-4 uppercase tracking-wider text-[10px]">
-                            Expert Clinical Interpretation
-                        </Typography>
-                        <List className="p-0">
-                            {interpretationPoints.length > 0 ? (
-                                interpretationPoints.map((point, index) => (
-                                    <ListItem key={index} className="px-0 py-1 items-start">
-                                        <ListItemIcon className="min-w-[30px] mt-1.5">
-                                            <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
-                                        </ListItemIcon>
-                                        <ListItemText 
-                                            primary={point} 
-                                            primaryTypographyProps={{ className: "text-sm text-gray-800 leading-relaxed font-medium" }}
-                                        />
-                                    </ListItem>
-                                ))
-                            ) : (
-                                <Typography variant="body2" className="text-gray-700 leading-relaxed italic">
-                                    {interpretation.replace(/Clinical Interpretation/i, '').replace(':', '').replace(/[*#]/g, '').trim() || 
-                                     "No specific clinical interpretation points available. Please correlate with other diagnostic findings."}
-                                </Typography>
-                            )}
-                        </List>
-                    </Box>
+                    <List className="p-0">
+                        {interpretationPoints.length > 0 ? (
+                            interpretationPoints.map((point, index) => (
+                                <ListItem key={index} className="px-0 py-1 items-start">
+                                    <ListItemIcon className="min-w-[30px] mt-1.5">
+                                        <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={point}
+                                        primaryTypographyProps={{ className: "text-sm text-gray-800 leading-relaxed font-medium" }}
+                                    />
+                                </ListItem>
+                            ))
+                        ) : (
+                            <Typography variant="body2" className="text-gray-700 leading-relaxed italic">
+                                {cleanHeadingText(interpretation, 'Clinical Interpretation') ||
+                                    'No specific clinical interpretation points available. Please correlate with other diagnostic findings.'}
+                            </Typography>
+                        )}
+                    </List>
                 </CardContent>
             </Card>
 
